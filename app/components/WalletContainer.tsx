@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
-// import { mnemonicToSeed } from 'bip39';
 import { generateMnemonic, mnemonicToSeedSync , validateMnemonic } from "bip39";
 import { derivePath } from "ed25519-hd-key";
 import { Keypair } from "@solana/web3.js";
@@ -10,13 +9,17 @@ import { HDNodeWallet , Wallet } from "ethers";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import nacl from "tweetnacl";
+import { Card } from "@/components/ui/card";
 import SecretPhraseContainer from "./SecretPhraseContainer";
 import { ChevronDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -32,8 +35,8 @@ interface Props {
 interface Pouch {
   publicKey: string;
   secretKey: string;
-  balance: string;
-  usdValue: string;
+  balance: number;
+  usdValue: number;
 }
 
 const WalletContainer = ({
@@ -45,6 +48,9 @@ const WalletContainer = ({
   const [ethereumWallets, setEthereumWallets] = useState<Pouch[]>([]);
   const [mnemonic, setMnemonic] = useState("");
   const [inputMode, setInputMode] = useState(false);
+  const [isDevnet, setIsDevnet] = useState(true); 
+
+
 
 
   
@@ -57,12 +63,42 @@ const WalletContainer = ({
     const publicKey = Keypair.fromSecretKey(secret).publicKey.toBase58();
     const secretKey = bs58.encode(secret);
 
+    const url = isDevnet
+  ? process.env.NEXT_PUBLIC_SOLANA_RPC_URL_DEVNET
+  : process.env.NEXT_PUBLIC_SOLANA_RPC_URL_MAINNET;
+
+if (!url) {
+  throw new Error('Missing Solana RPC URL.');
+}
+    const res = await fetch(url , {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getBalance',
+        params: [publicKey],
+      }),
+    })
+
+const data = await res.json();  
+const balanceLamports = data.result.value;  
+const balanceSOL = balanceLamports / 1e9;
+
+const usdRate = await getSolToUsdRate();
+
+const usdValue = (balanceSOL * usdRate ).toFixed(2);
+
+console.log(" the data , ", data , " and the balanceSOL ", balanceSOL , ' and the usdValue ', usdValue);
+
     setSolanaWallets((prevSolanaWallets) => [
       ...prevSolanaWallets,
-      { publicKey, secretKey, balance: "0", usdValue: "0" },
+      { publicKey, secretKey, balance: balanceSOL, usdValue: parseFloat(usdValue) },
     ]);
   }
-  function generateEthereumWallet(){
+  async function generateEthereumWallet(){
     const seed = mnemonicToSeedSync(mnemonic);
     const hdNode = HDNodeWallet.fromSeed(seed);
     const derivationPath = `m/44'/60'/${ethereumWallets.length}'/0'`;
@@ -75,9 +111,40 @@ const WalletContainer = ({
     const wallet = new Wallet(secretKey)
     const publicKey = wallet.address;
 
+    const url = isDevnet ? process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL_DEVNET : process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL_MAINNET;
+
+    if (!url) {
+      throw new Error('Missing Solana RPC URL.');
+    }
+    
+    const res = await fetch(url , {  
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'eth_getBalance',
+        params: [publicKey, 'latest'],
+      }),
+    });
+
+    const data = await res.json();
+    const balanceWei = parseInt(data.result, 16);  
+    const balanceETH = balanceWei / 1e18;  
+  
+    
+    const usdRate = await getEthToUsdRate();  
+  
+   
+    const usdValue = (balanceETH * usdRate).toFixed(2);
+  
+    console.log("Ethereum balance data:", data, "Balance (ETH):", balanceETH, "USD value:", usdValue);
+
     setEthereumWallets((prevEthereumWallets) => [
       ...prevEthereumWallets,
-      { publicKey, secretKey, balance: "0", usdValue: "0" },
+      { publicKey, secretKey, balance: balanceETH, usdValue: parseFloat(usdValue) },
     ]);
   }
 
@@ -107,6 +174,31 @@ const WalletContainer = ({
       toast.error("Invalid secret phrase!");
     }
   };
+
+  const getSolToUsdRate = async (): Promise<number> => {
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+      const data = await res.json();
+      const solPriceInUsd = data.solana.usd;
+      return solPriceInUsd;
+    } catch (error) {
+      console.error('Error fetching SOL to USD rate:', error);
+      return 0;
+    }
+  };
+
+  const getEthToUsdRate = async (): Promise<number> => {
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const data = await res.json();
+      const ethPriceInUsd = data.ethereum.usd;
+      return ethPriceInUsd;
+    } catch (error) {
+      console.error('Error fetching ETH to USD rate:', error);
+      return 0;
+    }
+  };
+  
   useEffect(() => {
     if (!hasWallet) {
       const newMnemonic = generateMnemonic();
@@ -120,12 +212,12 @@ const WalletContainer = ({
   
 
   return (
-    <main className=" h-full w-full flex flex-col items-center gap-y-4">
+    <main className="h-full w-full flex flex-col items-center gap-y-4 px-4 md:px-8">
       <SecretPhraseContainer mnemonic={mnemonic} onChange={inputMode ? handleMnemonicChange : undefined} onSave={handleSave} />
       <h1 className="text-3xl mt-16">Here are your Wallets</h1>
-      <div className="flex justify-center w-full items-center relative   ">
+      <div className="flex flex-col md:flex-row justify-center w-full items-center gap-4 relative mt-4">
         <DropdownMenu>
-          <DropdownMenuTrigger className="border-2  w-44 rounded-lg h-12 cursor-pointer relative flex items-center justify-between px-4">
+          <DropdownMenuTrigger className="border-2 w-full md:w-44 rounded-lg h-12 cursor-pointer relative flex items-center justify-between px-4">
             <div className="flex items-center gap-2">
               {selectedBlockchain === "Solana" && (
                 <Image
@@ -183,11 +275,36 @@ const WalletContainer = ({
 
         <Button
           variant="custom"
-          className="w-32 h-12 text-md absolute right-16 "
+          className="w-full md:w-32 h-12 text-md "
           onClick={selectedBlockchain === "Solana" ? generateSolanaWallet : generateEthereumWallet}
         >
           Add Wallet
         </Button>
+        <Card className="flex items-center gap-4 p-4 w-full md:w-60  ">
+  <div className="flex flex-col w-full px-4">
+    <div className="flex justify-between items-center">
+    <Label htmlFor="devnet-toggle" className="text-base font-semibold">
+      {isDevnet ? "Devnet" : "Mainnet"}
+    </Label>
+    <Switch
+    id="devnet-toggle"
+    checked={isDevnet}
+    onCheckedChange={(checked) => {
+      setIsDevnet(checked);
+      setSolanaWallets([]);  
+      setEthereumWallets([]);  
+    }}
+  />
+  </div>
+
+    <p className="text-xs text-muted-foreground">
+      {isDevnet ? "Connected to Devnet" : "Connected to Mainnet"}
+    </p>
+  </div>
+  
+</Card>
+
+
       </div>
 
       { selectedBlockchain === "Solana" && solanaWallets.length === 0 && (

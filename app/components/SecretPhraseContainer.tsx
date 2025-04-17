@@ -21,7 +21,7 @@ const SecretPhraseContainer = ({ mnemonic, onChange, onSave }: Props) => {
   }
 
   return (
-    <main className="w-[40rem] mx-auto mt-10">
+    <main className="w-full max-w-[40rem] px-4 mx-auto mt-10">
       <Card>
         <CardContent>
           <Accordion type="single" collapsible className="w-full">
@@ -44,7 +44,7 @@ const SecretPhraseContainer = ({ mnemonic, onChange, onSave }: Props) => {
                 {onChange ? (
                   <div className="flex flex-col justify-start">
                     <Textarea
-                      className="mx-8 w-[32rem] mt-4 !text-lg p-6 border border-input rounded-md focus-visible:outline-none focus-visible:ring-0 focus-visible:border-primary transition-all resize-none"
+                      className="w-full mt-4 !text-lg p-6 border border-input rounded-md focus-visible:outline-none focus-visible:ring-0 focus-visible:border-primary transition-all resize-none"
                       value={mnemonic}
                       onChange={(e) => onChange(e.target.value)}
                       placeholder="Enter your 12 or 24 word secret phrase here..."
@@ -54,7 +54,7 @@ const SecretPhraseContainer = ({ mnemonic, onChange, onSave }: Props) => {
                     <Button
                       variant="custom"
                       onClick={onSave}  
-                      className="mt-4 w-40 text-md mx-8"
+                      className="mt-4 w-40 text-md"
                     >
                       Save Secret Phrase
                     </Button>
