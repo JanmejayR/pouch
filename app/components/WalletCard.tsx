@@ -12,19 +12,21 @@ import { Eye, EyeOff, Copy , Trash2 } from "lucide-react";
 import Image from "next/image";
 
 interface Props {
-  index: string;
+  index: number;
   publicKey: string;
   secretKey: string;
-  balance: string; // in ETH or SOL
-  usdValue: string; // new prop - converted USD value
+  balance: string; 
+  usdValue: string; 
+  onDelete : ( walletIndex: number ) => void
 }
 
 const WalletCard = ({
-  index = "1",
+  index ,
   publicKey = "0x9B8101b81E7b1cfaA17Db24507CEC1298b6e63C2",
   secretKey = "dabdssdasdgasdbsdbsedbseadbsadbsdabdssdasdgasdbsdbsedbseadbsadbsdabdssdasdgasdbsdbsedbseadbsadbs",
   balance = "0",
   usdValue = "0",
+  onDelete
 }: Props) => {
   const [showSecret, setShowSecret] = useState(false);
 
@@ -38,15 +40,15 @@ const WalletCard = ({
   };
 
   return (
-    <Card className="w-[36rem] shadow-md relative">
+    <Card className="w-[40rem] shadow-md relative my-4">
       <CardHeader>
-        <CardTitle className="text-2xl">Wallet {index}</CardTitle>
+        <CardTitle className="text-2xl">Wallet {index+1}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6 ">
-            <Trash2 className="absolute top-6 right-9 cursor-pointer  hover:text-red-500" height={20} width={20} />
+            <Trash2 className="absolute top-6 right-9 cursor-pointer  hover:text-red-500" height={20} width={20} onClick={()=>onDelete(index)} />
 
-        {/* BALANCE SECTION */}
+         
         <div className="flex justify-between  gap-1 px-2 ">
           <div className="flex  items-center gap-2  ">
             <Image src={logo} alt={currency} width={40} height={40} />
@@ -64,7 +66,7 @@ const WalletCard = ({
           </div>
         </div>
 
-        {/* PUBLIC KEY */}
+       
         <div className="flex flex-col gap-1">
           <div className="font-medium">Public Key:</div>
           <div className="flex items-center justify-between gap-2">
@@ -81,7 +83,7 @@ const WalletCard = ({
           </div>
         </div>
 
-        {/* SECRET KEY */}
+        
         <div className="flex flex-col gap-1">
           <div className="font-medium">Secret Key:</div>
           <div className="flex justify-between gap-2 items-start">

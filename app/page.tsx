@@ -7,15 +7,22 @@ import Image from "next/image";
 
 export default function Home() {
   const [selectedBlockchain, setselectedBlockchain] = useState<string | null>(null);
+  const [hasWallet, setHasWallet] = useState<boolean | null>(null);
   return (
     <main className=" min-h-screen flex justify-center  ">
       <ModeToggle />
       <div className="flex flex-col items-center border-2 border-border rounded-3xl my-4  lg:w-[48rem]">
         <h1 className="text-5xl mb-8 mt-16">Welcome to Pouch</h1>
-       
-
+      
+      
+      {hasWallet === null && (
+        <div className="w-full flex flex-col gap-y-5 justify-center items-center mt-24">
+        <Button variant="custom" className="w-96 h-24" onClick={()=>setHasWallet(false)}>Create a new wallet</Button>
+        <Button variant="custom" className="w-96 h-24" onClick={()=>setHasWallet(true)}>I already have a wallet</Button>
+        </div>
+      )}
         
-        {!selectedBlockchain && (
+        { hasWallet !== null && !selectedBlockchain && (
 
           <><h2 className="text-3xl my-8">
           Please Select a Blockchain to continue
@@ -55,7 +62,9 @@ export default function Home() {
           </div>
           </>
         )}
-        {selectedBlockchain && <WalletContainer selectedBlockchain={selectedBlockchain} setSelectedBlockchain={setselectedBlockchain} />}
+        { hasWallet !== null && selectedBlockchain && <WalletContainer selectedBlockchain={selectedBlockchain} setSelectedBlockchain={setselectedBlockchain} hasWallet={hasWallet} />}
+
+
       </div>
     </main>
   );
