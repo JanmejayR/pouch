@@ -3,7 +3,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { Copy } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface Props {
   mnemonic: string;
   onChange?: (value: string) => void;
-  onSave: () => void; 
+  onSave: () => void;
 }
 
 const SecretPhraseContainer = ({ mnemonic, onChange, onSave }: Props) => {
@@ -53,7 +58,7 @@ const SecretPhraseContainer = ({ mnemonic, onChange, onSave }: Props) => {
                     />
                     <Button
                       variant="custom"
-                      onClick={onSave}  
+                      onClick={onSave}
                       className="mt-4 w-40 text-md"
                     >
                       Save Secret Phrase
