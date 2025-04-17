@@ -22,8 +22,8 @@ interface Props {
 
 const WalletCard = ({
   index ,
-  publicKey = "0x9B8101b81E7b1cfaA17Db24507CEC1298b6e63C2",
-  secretKey = "dabdssdasdgasdbsdbsedbseadbsadbsdabdssdasdgasdbsdbsedbseadbsadbsdabdssdasdgasdbsdbsedbseadbsadbs",
+  publicKey = "",
+  secretKey = "",
   balance = 0,
   usdValue = 0,
   onDelete

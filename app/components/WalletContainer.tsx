@@ -91,7 +91,6 @@ const usdRate = await getSolToUsdRate();
 
 const usdValue = (balanceSOL * usdRate ).toFixed(2);
 
-console.log(" the data , ", data , " and the balanceSOL ", balanceSOL , ' and the usdValue ', usdValue);
 
     setSolanaWallets((prevSolanaWallets) => [
       ...prevSolanaWallets,
@@ -116,7 +115,7 @@ console.log(" the data , ", data , " and the balanceSOL ", balanceSOL , ' and th
     if (!url) {
       throw new Error('Missing Solana RPC URL.');
     }
-    
+
     const res = await fetch(url , {  
       method: 'POST',
       headers: {
@@ -140,7 +139,6 @@ console.log(" the data , ", data , " and the balanceSOL ", balanceSOL , ' and th
    
     const usdValue = (balanceETH * usdRate).toFixed(2);
   
-    console.log("Ethereum balance data:", data, "Balance (ETH):", balanceETH, "USD value:", usdValue);
 
     setEthereumWallets((prevEthereumWallets) => [
       ...prevEthereumWallets,
@@ -149,14 +147,14 @@ console.log(" the data , ", data , " and the balanceSOL ", balanceSOL , ' and th
   }
 
   function deleteSolanaWallet(walletIndex: number) {
-    console.log(" in delete ", walletIndex);
+   
     setSolanaWallets((prevsolanaWallets) =>
       prevsolanaWallets.filter((_, idx) => idx !== walletIndex)
     );
   }
 
   function deleteEthereumWallet(walletIndex: number) {
-    console.log(" in delete ", walletIndex);
+    
     setEthereumWallets((prevEthereumWallets) =>
       prevEthereumWallets.filter((_, idx) => idx !== walletIndex)
     );
@@ -207,7 +205,7 @@ console.log(" the data , ", data , " and the balanceSOL ", balanceSOL , ' and th
     } else {
       setInputMode(true);  
     }
-  }, []);
+  }, [hasWallet]);
 
   
 
