@@ -10,7 +10,8 @@ import { useTheme } from "next-themes"
 export function ModeToggle(){
   const { theme , setTheme } = useTheme()
   return (
-        <label className="container fixed top-10 right-10 z-30 border-transparent flex h-16 w-16 justify-center items-center  border-2  hover:bg-gray-500 hover:rounded-md hover:bg-clip-padding hover:backdrop-filter hover:backdrop-blur-lg hover:bg-opacity-10" >
+
+        <label className="container fixed top-10 right-10 z-30 border-transparent flex h-16 w-16 justify-center items-center  border-2  hover:bg-gray-500 hover:rounded-md hover:bg-clip-padding hover:backdrop-filter hover:backdrop-blur-lg hover:bg-opacity-10 " >
         <input type="checkbox"   className='h-full w-full'checked={theme === 'light' ? true : false} onChange={()=>{
           setTheme(theme === 'light' ? 'dark' : 'light')
         }} />
