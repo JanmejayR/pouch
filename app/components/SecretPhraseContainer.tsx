@@ -1,22 +1,23 @@
 "use client";
 
-import React from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { toast } from 'sonner'
-import { Copy } from 'lucide-react'
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { toast } from "sonner";
+import { Copy } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   mnemonic: string;
   onChange?: (value: string) => void;
+  onSave: () => void; 
 }
 
-const SecretPhraseContainer = ({ mnemonic, onChange }: Props) => {
-
+const SecretPhraseContainer = ({ mnemonic, onChange, onSave }: Props) => {
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
-    toast.success('Secret phrase copied!');
+    toast.success("Secret phrase copied!");
   }
 
   return (
@@ -41,16 +42,26 @@ const SecretPhraseContainer = ({ mnemonic, onChange }: Props) => {
 
               <AccordionContent>
                 {onChange ? (
-                  <textarea
-                    className="w-full border rounded-lg p-4 mt-4"
-                    rows={3}
-                    value={mnemonic}
-                    onChange={(e) => onChange(e.target.value)}
-                    placeholder="Enter your 12 or 24 word secret phrase here..."
-                  />
+                  <div className="flex flex-col justify-start">
+                    <Textarea
+                      className="mx-8 w-[32rem] mt-4 !text-lg p-6 border border-input rounded-md focus-visible:outline-none focus-visible:ring-0 focus-visible:border-primary transition-all resize-none"
+                      value={mnemonic}
+                      onChange={(e) => onChange(e.target.value)}
+                      placeholder="Enter your 12 or 24 word secret phrase here..."
+                      rows={1}
+                      style={{ overflow: "hidden", resize: "none" }}
+                    />
+                    <Button
+                      variant="custom"
+                      onClick={onSave}  
+                      className="mt-4 w-40 text-md mx-8"
+                    >
+                      Save Secret Phrase
+                    </Button>
+                  </div>
                 ) : (
                   <div className="flex flex-wrap gap-x-4 gap-y-4 mt-4">
-                    {mnemonic.split(' ').map((word, index) => (
+                    {mnemonic.split(" ").map((word, index) => (
                       <Button
                         key={index}
                         variant="secondary"
@@ -68,7 +79,7 @@ const SecretPhraseContainer = ({ mnemonic, onChange }: Props) => {
         </CardContent>
       </Card>
     </main>
-  )
-}
+  );
+};
 
 export default SecretPhraseContainer;

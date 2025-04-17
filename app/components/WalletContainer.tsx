@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 // import { mnemonicToSeed } from 'bip39';
-import { generateMnemonic, mnemonicToSeedSync } from "bip39";
+import { generateMnemonic, mnemonicToSeedSync , validateMnemonic } from "bip39";
 import { derivePath } from "ed25519-hd-key";
 import { Keypair } from "@solana/web3.js";
 import bs58 from "bs58";
@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import WalletCard from "./WalletCard";
+import { toast } from "sonner";
 
 interface Props {
   selectedBlockchain: string;
@@ -45,6 +46,8 @@ const WalletContainer = ({
   const [mnemonic, setMnemonic] = useState("");
   const [inputMode, setInputMode] = useState(false);
 
+
+  
   async function generateSolanaWallet() {
     const seed = mnemonicToSeedSync(mnemonic);
     const index = solanaWallets.length;
@@ -61,9 +64,10 @@ const WalletContainer = ({
   }
   function generateEthereumWallet(){
     const seed = mnemonicToSeedSync(mnemonic);
-
     const hdNode = HDNodeWallet.fromSeed(seed);
-    const derivationPath = `m/44'/60'/${ethereumWallets.length}'/0`;
+    const derivationPath = `m/44'/60'/${ethereumWallets.length}'/0'`;
+    
+    
     const child = hdNode.derivePath(derivationPath);
 
     const secretKey = child.privateKey;
@@ -95,6 +99,14 @@ const WalletContainer = ({
     setMnemonic(value);
   }
   
+  const handleSave = () => {
+    if (validateMnemonic(mnemonic)) {
+      setInputMode(false); 
+      toast.success("Secret phrase saved!");
+    } else {
+      toast.error("Invalid secret phrase!");
+    }
+  };
   useEffect(() => {
     if (!hasWallet) {
       const newMnemonic = generateMnemonic();
@@ -105,9 +117,11 @@ const WalletContainer = ({
     }
   }, []);
 
+  
+
   return (
     <main className=" h-full w-full flex flex-col items-center gap-y-4">
-      <SecretPhraseContainer mnemonic={mnemonic} onChange={inputMode ? handleMnemonicChange : undefined} />
+      <SecretPhraseContainer mnemonic={mnemonic} onChange={inputMode ? handleMnemonicChange : undefined} onSave={handleSave} />
       <h1 className="text-3xl mt-16">Here are your Wallets</h1>
       <div className="flex justify-center w-full items-center relative   ">
         <DropdownMenu>
