@@ -93,6 +93,7 @@ const WalletCard = ({
     >
       {showSecret ? secretKey : "•".repeat(secretKey.length)}
     </span>
+    
     <Button
       variant="ghost"
       size="icon"
